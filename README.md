@@ -12,7 +12,7 @@ This package contains two programs:
 
 Supported images:
 
-Windows Vista, Windows 7, Window 8.x, Windows 10. All languages and any version (home, pro...) and Windows PE are supported.
+Windows Vista, Windows 7, Window 8.x, Windows 10, Windows 11. All languages and any version (home, pro...) and Windows PE are supported.
 
 Supported bootmodes:
 

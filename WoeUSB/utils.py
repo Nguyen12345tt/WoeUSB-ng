@@ -384,3 +384,71 @@ def update_policy_to_allow_for_running_gui_as_root(path):
 
     with open("/usr/share/polkit-1/actions/com.github.woeusb.woeusb-ng.policy", "w") as file:
         file.write(dom.toxml())
+
+def write_win11_bypass(target_mountpoint, bypass_hardware=False, bypass_ms_account=False, disable_bitlocker=False):
+    """
+    Tạo file autounattend.xml dựa trên các tùy chọn được bật.
+    """
+    check_kill_signal()
+    
+    if not (bypass_hardware or bypass_ms_account or disable_bitlocker):
+        return True # Không làm gì nếu không có tùy chọn nào được bật
+
+    print_with_color(_("Writing Windows 11 custom configuration (autounattend.xml)..."), "green")
+
+    # Danh sách các lệnh Registry cần thêm
+    reg_commands = []
+
+    # 1. Bypass Hardware (TPM, SecureBoot, RAM)
+    if bypass_hardware:
+        base_path = r"HKLM\SYSTEM\Setup\LabConfig"
+        reg_commands.append(f"reg add {base_path} /v BypassTPMCheck /t REG_DWORD /d 1 /f")
+        reg_commands.append(f"reg add {base_path} /v BypassSecureBootCheck /t REG_DWORD /d 1 /f")
+        reg_commands.append(f"reg add {base_path} /v BypassRAMCheck /t REG_DWORD /d 1 /f")
+        reg_commands.append(f"reg add {base_path} /v BypassCPUCheck /t REG_DWORD /d 1 /f")
+        reg_commands.append(f"reg add {base_path} /v BypassStorageCheck /t REG_DWORD /d 1 /f")
+
+    # 2. Bypass Microsoft Account (Network Requirement)
+    if bypass_ms_account:
+        reg_commands.append(r"reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE /v BypassNRO /t REG_DWORD /d 1 /f")
+
+    # 3. Disable BitLocker (Prevent Device Encryption)
+    if disable_bitlocker:
+        reg_commands.append(r"reg add HKLM\SYSTEM\CurrentControlSet\Control\BitLocker /v PreventDeviceEncryption /t REG_DWORD /d 1 /f")
+
+    # Tạo nội dung XML động
+    xml_commands = ""
+    for index, cmd in enumerate(reg_commands, start=1):
+        xml_commands += f"""
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>{index}</Order>
+                    <Path>{cmd}</Path>
+                </RunSynchronousCommand>"""
+
+    xml_content = f"""<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+    <settings pass="windowsPE">
+        <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <RunSynchronous>
+                {xml_commands}
+            </RunSynchronous>
+            <UserData>
+                <ProductKey>
+                    <WillShowUI>OnError</WillShowUI>
+                </ProductKey>
+                <AcceptEula>true</AcceptEula>
+            </UserData>
+        </component>
+    </settings>
+</unattend>"""
+
+    target_file = os.path.join(target_mountpoint, "autounattend.xml")
+
+    try:
+        with open(target_file, "w") as f:
+            f.write(xml_content)
+        print_with_color(_("Success: autounattend.xml created at {0}").format(target_file), "green")
+        return True
+    except IOError as e:
+        print_with_color(_("Error: Failed to write bypass file: {0}").format(e), "red")
+        return False

@@ -310,7 +310,7 @@ class MainPanel(wx.Panel):
                 filesystem=filesystem, 
                 skip_grub=self.__parent.options_skip_grub.IsChecked(),
                 # Truyền các giá trị từ Popup xuống Handler
-                bypass_workaround=bypass_hw,
+                bypass_hardware_check=bypass_hw,
                 bypass_ms_account=bypass_ms,
                 disable_bitlocker=no_bitlocker
                 )
@@ -384,8 +384,8 @@ class DialogAbout(wx.Dialog):
         self.__NotebookAutorLicence = wx.Notebook(self, wx.ID_ANY)
 
         self.__NotebookAutorLicence.AddPage(
-            PanelNoteBookAutors(self.__NotebookAutorLicence, wx.ID_ANY, "slacka \nLin-Buo-Ren\nWaxyMocha", data_directory + "woeusb-logo.png",
-                                "github.com/WoeUSB/WoeUSB-ng"), _("Authors"), True)
+            PanelNoteBookAutors(self.__NotebookAutorLicence, wx.ID_ANY, "Nguyen12345tt\n (Based on work by slacka \nLin-Buo-Ren\nWaxyMocha)", data_directory + "woeusb-logo.png",
+                                "github.com/Nguyen12345tt/WoeUSB-ng"), _("Authors"), True)
         self.__NotebookAutorLicence.AddPage(
             PanelNoteBookAutors(self.__NotebookAutorLicence, wx.ID_ANY, "Colin GILLE / Congelli501",
                                 data_directory + "c501-logo.png", "www.congelli.eu"), _("Original WinUSB Developer"), False)
@@ -454,7 +454,7 @@ class WoeUSB_handler(threading.Thread):
     kill = False
 
     def __init__(self, source, target, boot_flag, filesystem, skip_grub=False, 
-                 bypass_workaround=False, bypass_ms_account=False, disable_bitlocker=False):
+                 bypass_hardware_check=False, bypass_ms_account=False, disable_bitlocker=False):
         threading.Thread.__init__(self)
 
         core.gui = self
@@ -463,7 +463,7 @@ class WoeUSB_handler(threading.Thread):
         self.boot_flag = boot_flag
         self.filesystem = filesystem
         self.skip_grub = skip_grub
-        self.bypass_workaround = bypass_workaround
+        self.bypass_hardware_check = bypass_hardware_check
         self.bypass_ms_account = bypass_ms_account
         self.disable_bitlocker = disable_bitlocker
 
@@ -477,7 +477,7 @@ class WoeUSB_handler(threading.Thread):
         try:
             core.main(source_fs_mountpoint, target_fs_mountpoint, self.source, self.target, "device", temp_directory,
                       self.filesystem, self.boot_flag , None, self.skip_grub, 
-                      self.bypass_workaround, self.bypass_ms_account, self.disable_bitlocker)
+                      self.bypass_hardware_check, self.bypass_ms_account, self.disable_bitlocker)
         except SystemExit:
             pass
 

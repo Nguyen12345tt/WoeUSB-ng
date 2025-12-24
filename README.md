@@ -45,7 +45,7 @@ sudo pip3 install .
 
 ## Installation from source code locally or in virtual environment 
 ```shell
-git clone https://github.com/WoeUSB/WoeUSB-ng.git
+git clone https://github.com/Nguyen12345tt/WoeUSB-ng.git
 cd WoeUSB-ng
 git apply development.patch
 sudo pip3 install -e .

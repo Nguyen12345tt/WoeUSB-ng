@@ -38,7 +38,7 @@ sudo dnf install git p7zip p7zip-plugins python3-pip python3-wxpython4
 ```
 ### 2. Install WoeUSB-ng
 ```shell
-git clone https://github.com/WoeUSB/WoeUSB-ng.git
+git clone https://github.com/Nguyen12345tt/WoeUSB-ng.git
 cd WoeUSB-ng
 sudo pip3 install .
 ```
